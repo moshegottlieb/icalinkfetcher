@@ -1,0 +1,17 @@
+{
+  "compileOnSave": true,
+  "compilerOptions": {
+      "module": "CommonJS",
+      "esModuleInterop": false,
+      "allowSyntheticDefaultImports": true,
+      "target": "ES2024",
+      "noImplicitAny": true,
+      "moduleResolution": "node",
+      "sourceMap": true,
+      "outDir": "dist",
+      "declaration": true
+  },
+  "include": [
+      "src/**/*","test/**/*"
+  ]
+}

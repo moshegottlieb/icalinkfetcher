@@ -1,0 +1,13 @@
+{
+    "log-level": "info",
+    "calendars" : [
+        {
+            "url": "https://caldav.icloud.com",
+            "username": "tim.cook@example.com",
+            "password": "12345"
+        },
+        {
+            "url" : "https://fcal.ch/privat/fcal_school.ics.php?hl=de&geo=3062"
+        }
+    ]
+}
