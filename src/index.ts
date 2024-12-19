@@ -4,13 +4,14 @@ import { Calendar } from './calendar'
 
 async function main() {
     await Config.load()
+    log.trace('Loaded configuration')
     await Calendar.load()
-    log.info('Logging in')
+    log.info(`Loaded ${Calendar.shared.length} calendars`)
     await Calendar.shared.forEach( async (cal) => {
         try {
-            log.debug(`Loading ${cal.serverUrl}`)
+            log.trace(`Loading ${cal.serverUrl}`)
             await cal.load()
-            
+
         } catch (error) {
             let reason:string
             if (error instanceof Error){

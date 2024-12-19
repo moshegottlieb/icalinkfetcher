@@ -135,8 +135,12 @@ class CalDavCalendar extends iCalCalendar {
     }
 
     async load(){
+        log.trace(`Logging into to ${this.serverUrl}`)
         await this.client.login()
+        log.trace(`Logged into to ${this.serverUrl}`)
+        log.trace(`Fetching calendars from ${this.serverUrl}`)
         const calendars = await this.client.fetchCalendars();
+        log.trace(`Calendars from ${this.serverUrl} fetched`)
         const start = Calendar.now.toISOString()
         const end = Calendar.eod.toISOString()
         for (const cal of calendars){
