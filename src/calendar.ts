@@ -42,7 +42,7 @@ class Calendar {
         this.eod = new Date(
             this.now.getFullYear(),
             this.now.getMonth(),
-            this.now.getDate() + 20,
+            this.now.getDate(),
             23,
             59,
             59,
