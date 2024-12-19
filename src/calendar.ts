@@ -158,7 +158,7 @@ class CalDavCalendar extends iCalCalendar {
             }
         }
         Event.shared.forEach( (event)=>{
-            log.debug(event.summary)
+            log.debug(`${event.start}-${event.end} - event.summary`)
         })
     }
     private client:DAVClient
