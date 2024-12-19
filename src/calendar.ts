@@ -73,7 +73,8 @@ class Calendar {
 
     // event:ICal.Event doesn't work, dunno why
     protected filter(event:any) : boolean {
-        const start = event.startDate.toJSDate().getTime()
+        const start_date = event.startDate.toJSDate()
+        const start = start_date.getTime()
         return start >= Calendar.now_time && start <= Calendar.eod_time
     }
 
