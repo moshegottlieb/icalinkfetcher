@@ -1,7 +1,6 @@
 import { createDAVClient, DAVClient } from 'tsdav';
 import { Config } from './config';
 import { log } from './log';
-import { eventNames } from 'process';
 const ICAL = require('ical.js');
 
 class Event {
