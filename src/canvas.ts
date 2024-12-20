@@ -18,13 +18,13 @@ interface TextMetrics {
 
 enum FontStyle {
     black = 'black',
-    bold = 'bold',
     'extra-bold' = 'extra-bold',
-    'extra-light' = 'extra-light',
-    light = 'light',
+    bold = 'bold',
+    'semi-bold' = 'semi-bold',
     medium = 'medium',
     regular = 'regular',
-    'semi-bold' = 'semi-bold',
+    light = 'light',
+    'extra-light' = 'extra-light',
     thin = 'thin'
 }
 
@@ -63,8 +63,13 @@ class Canvas {
     static WIDTH = 480
     static HEIGHT = 800
 
+    private camel(text:string){
+        if (text.length == 0) return ''
+        return text.substring(0,1).toUpperCase() + text.substring(1)
+    }
+
     constructor(){
-        registerFont('fonts/Handjet/static/Handjet-Regular.ttf', { family: 'Handjet' })
+        registerFont(`fonts/Handjet/static/Handjet-Regular.ttf`, { family: 'Handjet' })    
         this.canvas = createCanvas(Canvas.WIDTH,Canvas.HEIGHT)
         this.context = this.canvas.getContext('2d')
         this.context.imageSmoothingEnabled = false
@@ -92,7 +97,8 @@ class Canvas {
         let lh = this.lineHeight(metrics)
         let block = Math.max(logoH,lh) + VSpace * 2
         let x = HSpace
-        let y = block / 2 + lh - VSpace + this.offset
+        //let y = (block - lh) / 2 + this.offset // for some reason, this line is not positioned in the correct y
+        let y = (block + lh) / 2 + this.offset // for some reason, this shows correctly. the commented line above should be correct 🤷‍♂️
         this.context.fillText(title,x,y)
         x = Canvas.WIDTH - HSpace - logoW - 1
         y = (block - logoH) / 2 + this.offset
@@ -115,7 +121,7 @@ class Canvas {
         let metrics : TextMetrics
         // don't even try if we don't have 20px to spare, and break if font size is too small
         while (remaining > 17 && fontSize > 17) {
-            this.context.font = this.font(fontSize)
+            this.context.font = this.font(fontSize,FontStyle.light)
             metrics = this.context.measureText(end)
             const lh = this.lineHeight(metrics)
             if (lh <= remaining){
@@ -144,6 +150,8 @@ class Canvas {
     }
 
     private async dotifyIfNeeded(line:string,suffix:string,maxWidth:number) : Promise<string> {
+        if (line.length == 0) return line;
+        line = line.split(/\r?\n|\r|\n/g)[0] // get the first line only
         if (this.dotsWidth === null){
             const metrics = this.context.measureText(this.dots)
             this.dotsWidth = metrics.width
@@ -161,8 +169,9 @@ class Canvas {
     }
 
     private async drawLine(event:Event){
+        const fontSize = 22
         this.offset += VSpace
-        this.context.font = this.font(22)
+        this.context.font = this.font(fontSize)
         let body:string
         let suffix = ''
         if (event.isFullDay) {
@@ -170,26 +179,39 @@ class Canvas {
             suffix = ' (all day)'
         }
         else {
-            body = `${event.start.toLocaleTimeString([], {timeStyle: 'short'})} ${event.summary}`
-            const duration = (event.end.getTime() - event.start.getTime()) / 1000 // seconds
-            if (duration >= 60){
-                suffix = ` (${this.formatTime(duration)})`
-            }
+            body = `${event.localizedStart} ${event.summary}`
         }
         const max_width = Canvas.WIDTH - 2 * HSpace
         body = await this.dotifyIfNeeded(body,suffix,max_width)
-        const metrics = this.context.measureText(body + suffix)
-        const box = this.lineHeight(metrics) + 1
+        let metrics = this.context.measureText(body + suffix)
+        let box = this.lineHeight(metrics)
         this.offset += VSpace
-        this.context.fillText(body + suffix,HSpace,box / 2 + this.offset)
-        this.offset += box
-        
+        this.context.fillText(body + suffix,HSpace,this.offset)
+        this.offset += box + VSpace
+        // Add a line if we have a location or event is longer than 5 minutes, but disregard duration of full day events
+        body = ''
+        suffix = ''
+        if (!event.isFullDay && event.duration > 5 * 60){
+            body = event.localizedEnd + ' '
+        }
+        if (event.location){
+            body += event.location
+        }
+        if (body.length){
+            this.context.font = this.font(fontSize,FontStyle['light'])
+            body = await this.dotifyIfNeeded(body,suffix,max_width)
+            metrics = this.context.measureText(body + suffix)
+            box = this.lineHeight(metrics)
+            this.context.fillText(body + suffix,HSpace,this.offset)
+            this.offset += box
+        }
         this.context.beginPath()
         this.context.setLineDash([1,1])
         this.context.moveTo(0,this.offset)
         this.context.lineTo(Canvas.WIDTH - 1,this.offset)
         this.context.stroke()
         this.context.closePath()
+        this.offset += 1
     }
 
     async draw(){
@@ -210,10 +232,11 @@ class Canvas {
     }
 
     private lineHeight(metrics:TextMetrics){
-        return metrics.emHeightAscent - metrics.emHeightDescent
+        return Math.ceil(Math.abs(metrics.actualBoundingBoxDescent - metrics.actualBoundingBoxAscent))
     }
 
-    private font(pixels:number) : string {
+    private font(pixels:number,style:FontStyle = FontStyle.regular) : string {
+        // I don't know how to do font style at this stage, nor do I feel like exploring it
         return `${pixels}px Handjet`
     }
 

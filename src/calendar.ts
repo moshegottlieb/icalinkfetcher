@@ -4,14 +4,16 @@ import { log } from './log';
 const ICAL = require('ical.js');
 
 class Event {
-    constructor(summary:string,start:Date,end:Date){
+    constructor(summary:string,start:Date,end:Date,location:string){
         this.summary = summary
         this.start = start
         this.end = end
+        this.location = location
     }
     summary: string
     start:Date
     end:Date
+    location?:string
     get isFullDay() : boolean {
         const ret = 
             this.start.getUTCMinutes() == this.end.getUTCMinutes() &&
@@ -20,6 +22,25 @@ class Event {
             Math.abs(this.end.getTime() - this.start.getTime()) >= (24 * 3600 * 1000)
         return ret
     }
+
+    get localizedStart() : string {
+        return this.localizedTime(this.start)
+    }
+    get localizedEnd() : string {
+        return this.localizedTime(this.end)
+    }
+
+    private localizedTime(date:Date) : string {
+        return date.toLocaleTimeString([], {timeStyle: 'short'})
+    }
+
+    /**
+     * Duration in seconds
+     */
+    get duration() : number {
+        return (this.end.getTime() - this.start.getTime()) / 1000
+    }
+
 
     static shared : Array<Event> = Array()
 
@@ -126,7 +147,9 @@ class iCalCalendar extends Calendar {
                 const e = new Event(
                     vevent.summary,
                     vevent.startDate.toJSDate(),
-                    vevent.endDate.toJSDate())
+                    vevent.endDate.toJSDate(),
+                    vevent.location
+                )
                 events.push(e)
             }
         }
