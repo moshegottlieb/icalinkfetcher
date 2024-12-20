@@ -9,4 +9,4 @@ dist/
 node_modules/
 config.json
 output.png
-output.png.previous
+output.png.bak
