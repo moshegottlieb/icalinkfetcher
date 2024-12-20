@@ -13,11 +13,12 @@ class Event {
     start:Date
     end:Date
     get isFullDay() : boolean {
-        return 
+        const ret = 
             this.start.getUTCMinutes() == this.end.getUTCMinutes() &&
             this.start.getUTCHours() == this.end.getUTCHours() &&
             this.start.getUTCSeconds() == this.end.getUTCSeconds() &&
             Math.abs(this.end.getTime() - this.start.getTime()) >= (24 * 3600 * 1000)
+        return ret
     }
 
     static shared : Array<Event> = Array()
