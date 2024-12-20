@@ -73,17 +73,6 @@ class Canvas {
         this.context.fillRect(0,0,Canvas.WIDTH,Canvas.HEIGHT)
         this.context.fillStyle = 'black'
         this.context.strokeStyle = 'black'
-        
-        /*
-        let y = 0
-        for (let i=26;i<50;++i){
-            const text = `${i}px שלום Shalom`
-            this.font = `${i}px Handjet`
-            const measure = this.measureText(text)
-            const height = measure.lineHeight
-            y += height + 10
-            this.fillText(text, 10, y)
-        }*/
     }
 
     private async title() : Promise<string> { 
@@ -156,7 +145,7 @@ class Canvas {
 
     private async drawLine(event:Event){
         this.offset += VSpace
-        this.context.font = this.font(20)
+        this.context.font = this.font(22)
         if (this.dotsWidth === null){
             const metrics = this.context.measureText(this.dots)
             this.dotsWidth = metrics.width
