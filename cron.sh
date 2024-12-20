@@ -8,7 +8,11 @@ if [ -f output.png ]; then
 fi
 node dist/src/index.js
 if [ -f output.png.bak ]; then
-	diff output.png output.png.bak && exit 0 # Do not refresh if there's no need to
+	diff output.png output.png.bak
+	if [ "$?" = 0 ]; then
+		echo "No change, skipping refresh"
+		exit 0
+	fi
 fi
 convert output.png -rotate 90 -monochrome out.bmp
 epd out.bmp
