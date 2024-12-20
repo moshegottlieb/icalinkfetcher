@@ -1,13 +1,24 @@
 {
-    "log-level": "info",
+    "log-level": "warning",
+    "weather" : {
+        "latitude" : 52.523430,
+        "longitude" : 13.411440,
+        "time-zone" : "Europe/Berlin"
+    },
     "calendars" : [
         {
             "url": "https://caldav.icloud.com",
             "username": "tim.cook@example.com",
-            "password": "12345"
+            "password": "12345-this-is-not-real"
         },
         {
-            "url" : "https://fcal.ch/privat/fcal_school.ics.php?hl=de&geo=3062"
+            "url" : "https://ics.fixtur.es/v2/league/bundesliga.ics"
+        },
+        {
+            "url" : "https://ics.fixtur.es/v2/league/champions-league.ics"
+        },
+        {
+            "url" : "https://ics.fixtur.es/v2/league/premier-league.ics"
         }
     ]
 }

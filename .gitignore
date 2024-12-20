@@ -8,3 +8,4 @@ temp
 dist/
 node_modules/
 config.json
+output.png

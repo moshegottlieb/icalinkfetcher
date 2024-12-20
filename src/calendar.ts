@@ -1,4 +1,4 @@
-import { createDAVClient, DAVClient } from 'tsdav';
+import { DAVClient } from 'tsdav';
 import { Config } from './config';
 import { log } from './log';
 const ICAL = require('ical.js');
@@ -49,7 +49,7 @@ class Calendar {
           )
         this.now_time = this.now.getTime()
         this.eod_time = this.eod.getTime()
-        Config.shared.forEach(config => {
+        for (const config of Config.shared.calendars){
             let cal : Calendar
             switch (config.type){
                 case Config.Type.CalDav:
@@ -62,7 +62,7 @@ class Calendar {
                     throw new Error(`Unknow calendar type: ${config.type}`)
             }
             this.shared.push(cal)
-        })
+        }
     }
 
     async load(){
@@ -97,7 +97,8 @@ class iCalCalendar extends Calendar {
         if (!response.ok){
             throw new Error(`Error fetching ${this.config.url}: ${response.status} ${response.statusText}`)
         }
-        this.parse(await response.text())
+        const text = await response.text()
+        this.parse(text)
     }
 
     parse(rawData:string){
@@ -166,5 +167,3 @@ class CalDavCalendar extends iCalCalendar {
 
 
 export { Calendar, Event }
-
-

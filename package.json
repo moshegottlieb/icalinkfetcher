@@ -1,6 +1,6 @@
 {
   "name": "icalinkfetcher",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "description": "Fetch my ical and show it in an my ePaper display",
   "main": "dist/src/index.js",
   "scripts": {

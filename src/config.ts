@@ -1,7 +1,12 @@
-import exp from 'node:constants'
 import { readFile } from 'node:fs/promises'
-import { log, configLog } from './log'
+import { configLog } from './log'
 
+
+export interface WeatherConfig {
+    latitude:number
+    longitude:number
+    'time-zone' : string
+}
 
 export class Config {
 
@@ -9,8 +14,10 @@ export class Config {
     username? : string
     password? : string
     type: Config.Type
+    weather? : WeatherConfig
 
     static async load(){
+
         const data = await readFile('config.json','utf-8')
         const config = JSON.parse(data)
         configLog(config['log-level'])
@@ -21,6 +28,18 @@ export class Config {
         const array = calendars as Array<any>
         if (calendars.length == 0) {
             throw new Error('Config file is expected to include an array of at least one entry')
+        }
+
+        const obj = config.weather
+
+        if (typeof obj.longitude === 'number' &&
+            typeof obj.latitude === 'number' &&
+            typeof obj['time-zone'] === 'string') {
+            this.shared.weather = {
+                latitude:obj.latitude,
+                longitude:obj.longitude,
+                'time-zone' : obj['time-zone']
+            }
         }
         
         calendars.forEach((obj) =>{
@@ -36,11 +55,17 @@ export class Config {
             } else {
                 cfg.type = Config.Type.iCal
             }
-            this.shared.push(cfg)
+            this.shared.calendars.push(cfg)
         })
     }
 
-    static shared : Array<Config> = Array()
+    static shared : {
+        weather? : WeatherConfig
+        calendars : Array<Config>
+    } = {
+        weather:null,
+        calendars:Array()
+    }
 
 }
 

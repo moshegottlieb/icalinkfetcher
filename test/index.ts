@@ -1,4 +1,3 @@
-//import {JSONObject, required,optional, union, map, gt, lt , gte, lte, eq, ne, validate, custom, passthrough, integer, array, minLength, maxLength } from '../src/index'
 import {strict as assert} from 'assert'
 import { Config } from '../src/config'
 
