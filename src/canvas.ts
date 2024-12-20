@@ -64,7 +64,7 @@ class Canvas {
     static HEIGHT = 800
 
     constructor(){
-        registerFont('fonts/Handjet/Handjet-VariableFont_ELGR,ELSH,wght.ttf', { family: 'Handjet' })
+        registerFont('fonts/Handjet/static/Handjet-Regular.ttf', { family: 'Handjet' })
         this.canvas = createCanvas(Canvas.WIDTH,Canvas.HEIGHT)
         this.context = this.canvas.getContext('2d')
         this.context.imageSmoothingEnabled = false
@@ -126,7 +126,7 @@ class Canvas {
         let metrics : TextMetrics
         // don't even try if we don't have 20px to spare, and break if font size is too small
         while (remaining > 17 && fontSize > 17) {
-            this.context.font = this.font(fontSize,FontStyle.light)
+            this.context.font = this.font(fontSize)
             metrics = this.context.measureText(end)
             const lh = this.lineHeight(metrics)
             if (lh <= remaining){
@@ -161,10 +161,14 @@ class Canvas {
             const metrics = this.context.measureText(this.dots)
             this.dotsWidth = metrics.width
         }
-        let body = `${event.start.toLocaleTimeString([], {timeStyle: 'short'})} ${event.summary}`
+        let body:string
         let suffix = ''
-        if (event.isFullDay) suffix=' (all day)';
+        if (event.isFullDay) {
+            body = `${event.summary}`
+            suffix = ' (all day)'
+        }
         else {
+            body = `${event.start.toLocaleTimeString([], {timeStyle: 'short'})} ${event.summary}`
             const duration = (event.end.getTime() - event.start.getTime()) / 1000 // seconds
             if (duration >= 60){
                 suffix = ` (${this.formatTime(duration)})`
@@ -193,8 +197,17 @@ class Canvas {
 
     async draw(){
         await this.drawTitle()
+        // Draw full day events
         for (const e of Event.shared){
-            await this.drawLine(e)
+            if (e.isFullDay){
+                await this.drawLine(e)
+            }
+        }
+        // Draw full non full day events
+        for (const e of Event.shared){
+            if (!e.isFullDay){
+                await this.drawLine(e)
+            }
         }
         await this.drawEnd()
     }
@@ -203,8 +216,8 @@ class Canvas {
         return metrics.emHeightAscent - metrics.emHeightDescent
     }
 
-    private font(pixels:number,style:FontStyle = FontStyle.regular) : string {
-        return `${style} ${pixels}px Handjet`
+    private font(pixels:number) : string {
+        return `${pixels}px Handjet`
     }
 
     async save(){
