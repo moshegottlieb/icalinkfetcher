@@ -46,9 +46,19 @@ class Calendar {
             59,
             59,
             0 // Set hours, minutes, seconds, and milliseconds
-          )
+          );
+        this.bod = new Date(
+            this.now.getFullYear(),
+            this.now.getMonth(),
+            this.now.getDate(),
+            0,
+            0,
+            0,
+            0 // Set hours, minutes, seconds, and milliseconds
+        )
         this.now_time = this.now.getTime()
         this.eod_time = this.eod.getTime()
+        this.bod_time = this.bod.getTime()
         for (const config of Config.shared.calendars){
             let cal : Calendar
             switch (config.type){
@@ -73,9 +83,11 @@ class Calendar {
 
     // event:ICal.Event doesn't work, dunno why
     protected filter(event:any) : boolean {
+        const end_date = event.endDate.toJSDate()
         const start_date = event.startDate.toJSDate()
         const start = start_date.getTime()
-        return start >= Calendar.now_time && start <= Calendar.eod_time
+        const end = end_date.getTime()
+        return Calendar.now_time < end && Calendar.eod_time >= start // does this event occur today, and is still taking place?
     }
 
     public get serverUrl() : URL {
@@ -86,7 +98,9 @@ class Calendar {
     private static now_time : number
     protected static eod:Date
     private static eod_time : number
-
+    private static bod : Date
+    private static bod_time : number
+    
     protected config:Config
 }
 
