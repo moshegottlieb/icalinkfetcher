@@ -143,13 +143,26 @@ class Canvas {
         }
     }
 
-    private async drawLine(event:Event){
-        this.offset += VSpace
-        this.context.font = this.font(22)
+    private async dotifyIfNeeded(line:string,suffix:string,maxWidth:number) : Promise<string> {
         if (this.dotsWidth === null){
             const metrics = this.context.measureText(this.dots)
             this.dotsWidth = metrics.width
         }
+        let metrics = this.context.measureText(line + suffix)
+        const max_width = Canvas.WIDTH - 2 * HSpace
+        if (metrics.width > max_width){
+            while (metrics.width > (max_width - this.dotsWidth)){
+                line = line.substring(0,line.length -1)
+                metrics = this.context.measureText(line + suffix)
+            }
+            line+=this.dots
+        }
+        return line
+    }
+
+    private async drawLine(event:Event){
+        this.offset += VSpace
+        this.context.font = this.font(22)
         let body:string
         let suffix = ''
         if (event.isFullDay) {
@@ -163,19 +176,14 @@ class Canvas {
                 suffix = ` (${this.formatTime(duration)})`
             }
         }
-        let metrics = this.context.measureText(body + suffix)
         const max_width = Canvas.WIDTH - 2 * HSpace
-        if (metrics.width > max_width){
-            while (metrics.width > (max_width - this.dotsWidth)){
-                body = body.substring(0,body.length -1)
-                metrics = this.context.measureText(body + suffix)
-            }
-            body+=this.dots
-        }
+        body = await this.dotifyIfNeeded(body,suffix,max_width)
+        const metrics = this.context.measureText(body + suffix)
         const box = this.lineHeight(metrics) + 1
         this.offset += VSpace
         this.context.fillText(body + suffix,HSpace,box / 2 + this.offset)
         this.offset += box
+        
         this.context.beginPath()
         this.context.setLineDash([1,1])
         this.context.moveTo(0,this.offset)
