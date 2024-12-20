@@ -14,6 +14,11 @@ if [ -f output.png.bak ]; then
 		exit 0
 	fi
 fi
-convert output.png -rotate 90 -monochrome out.bmp
-epd out.bmp
-rm -f out.bmp
+
+if [[ "$OSTYPE" == "darwin"* ]]; then
+	open output.png
+else
+	convert output.png -rotate 90 -monochrome out.bmp
+	epd out.bmp
+	rm -f out.bmp
+fi
