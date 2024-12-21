@@ -248,7 +248,7 @@ class Canvas {
     private font(pixels:number,text:string,style:FontStyle = FontStyle.regular) : string {
         const isHebrew = this.containsHebrew(text)
         // I don't know how to do font style at this stage, nor do I feel like exploring it
-        return `${pixels}px ${isHebrew ? this.hebFamily : this.fontFamily}`
+        return `${isHebrew ? pixels - 2 :  pixels + 2}px ${isHebrew ? this.hebFamily : this.fontFamily}`
     }
 
     async save(){

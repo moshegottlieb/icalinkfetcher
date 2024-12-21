@@ -48,7 +48,9 @@ class Event {
         if (events.length == 0) return;
         this.shared = this.shared.concat(events)
         this.shared.sort( (a:Event,b:Event) => {
-            return a.end.getTime() - b.end.getTime()
+            const a1 = a.end.getUTCHours() * 3600 + a.end.getUTCMinutes() * 60 + a.end.getUTCSeconds()
+            const b1 = b.end.getUTCHours() * 3600 + b.end.getUTCMinutes() * 60 + b.end.getUTCSeconds()
+            return a1 - b1
         })
     }
 }
@@ -103,39 +105,8 @@ class Calendar {
 
     static shared = Array<Calendar>()
 
-
-    private findRecurring(vevent:any){
-        if (!vevent.isRecurring()) return vevent
-        let recur = vevent.getFirstPropertyValue("rrule");
-        // When creating the iterator, you must use the DTSTART of the event, it is used for the basis of some calculations
-        let dtstart = vevent.getFirstPropertyValue("dtstart");
-        let iterator = recur.iterator(dtstart); 
-
-        let rangeStart = ICAL.Time.fromJSDate(Calendar.bod)
-        let rangeEnd = ICAL.Time.fromJSDate(Calendar.eod)
-        // Iterate through the start dates in the range.
-        let next = iterator.next()
-        for (let next = iterator.next(); next && next.compare(rangeEnd) < 0; next = iterator.next()) {
-            if (next.compare(rangeStart) < 0) {
-                continue;
-            }
-            // Do something with the date
-            log.debug('here')
-        }
-
-        // Now grab some RDATEs (additional occurrences) and EXDATEs (removed occurrences)
-        let rdates = vevent.getAllProperties("rdate").reduce((acc:any, prop:any) => acc.concat(prop.getValues()));
-        let exdates = vevent.getAllProperties("rdate").reduce((acc:any, prop:any) => acc.concat(prop.getValues()));
-        // Do somthing with the dates
-    }
-
     // event:ICal.Event doesn't work, dunno why
     protected filter(event:any) : boolean {
-        /*
-        if (event.isRecurring()){
-            event = this.findRecurring(event)
-        }*/
-
         const end_date = event.endDate.toJSDate()
         const start_date = event.startDate.toJSDate()
         const start = start_date.getTime()
@@ -165,16 +136,16 @@ class iCalCalendar extends Calendar {
             throw new Error(`Error fetching ${this.config.url}: ${response.status} ${response.statusText}`)
         }
         const text = await response.text()
-        this.parse(text)
+        this.parse(text,false)
     }
 
-    parse(rawData:string){
+    parse(rawData:string,preFiltered:boolean){
         const jcalData = ICAL.parse(rawData);
         const component = new ICAL.Component(jcalData);
         let events: Array<Event> = Array()
         for (let event of component.getAllSubcomponents('vevent')){
             const vevent = new ICAL.Event(event);
-            if (this.filter(vevent)){
+            if (preFiltered || this.filter(vevent)){
                 const e = new Event(
                     vevent.summary,
                     vevent.startDate.toJSDate(),
@@ -223,7 +194,7 @@ class CalDavCalendar extends iCalCalendar {
             for (const obj of objects){
                 const rawData = obj.data;
                 if (!(typeof rawData === 'string')) return; // ignore invalid data
-                this.parse(rawData)
+                this.parse(rawData,true)
             }
         }
     }
