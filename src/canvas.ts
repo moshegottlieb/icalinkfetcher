@@ -68,8 +68,12 @@ class Canvas {
         return text.substring(0,1).toUpperCase() + text.substring(1)
     }
 
+    private fontFamily = 'Geneva'
+    private hebFamily = 'Handjet'
+
     constructor(){
-        registerFont(`fonts/Handjet/static/Handjet-Regular.ttf`, { family: 'Handjet' })    
+        registerFont('fonts/geneva_9.ttf',{ family: this.fontFamily })
+        registerFont('fonts/Handjet/static/Handjet-Regular.ttf',{ family: this.hebFamily })
         this.canvas = createCanvas(Canvas.WIDTH,Canvas.HEIGHT)
         this.context = this.canvas.getContext('2d')
         this.context.imageSmoothingEnabled = false
@@ -91,7 +95,7 @@ class Canvas {
     private async drawTitle(){
         const image = await loadImage('images/sense_logo.png')
         const title = await this.title()
-        this.context.font = this.font(40)
+        this.context.font = this.font(40,title)
         let metrics = this.context.measureText(title)
         this.offset += HSpace
         let lh = this.lineHeight(metrics)
@@ -121,7 +125,7 @@ class Canvas {
         let metrics : TextMetrics
         // don't even try if we don't have 20px to spare, and break if font size is too small
         while (remaining > 17 && fontSize > 17) {
-            this.context.font = this.font(fontSize,FontStyle.light)
+            this.context.font = this.font(fontSize,end)
             metrics = this.context.measureText(end)
             const lh = this.lineHeight(metrics)
             if (lh <= remaining){
@@ -171,7 +175,7 @@ class Canvas {
     private async drawLine(event:Event){
         const fontSize = 26
         this.offset += VSpace
-        this.context.font = this.font(fontSize)
+        
         let body:string
         let suffix = ''
         if (event.isFullDay) {
@@ -182,6 +186,7 @@ class Canvas {
             body = `${event.localizedStart} ${event.summary}`
         }
         const max_width = Canvas.WIDTH - 2 * HSpace
+        this.context.font = this.font(fontSize,body)
         body = await this.dotifyIfNeeded(body,suffix,max_width)
         let metrics = this.context.measureText(body + suffix)
         let box = this.lineHeight(metrics)
@@ -198,7 +203,7 @@ class Canvas {
             body += event.location
         }
         if (body.length){
-            this.context.font = this.font(fontSize,FontStyle['light'])
+            this.context.font = this.font(fontSize,body)
             body = await this.dotifyIfNeeded(body,suffix,max_width)
             metrics = this.context.measureText(body + suffix)
             box = this.lineHeight(metrics)
@@ -235,9 +240,15 @@ class Canvas {
         return Math.ceil(Math.abs(metrics.actualBoundingBoxDescent - metrics.actualBoundingBoxAscent))
     }
 
-    private font(pixels:number,style:FontStyle = FontStyle.regular) : string {
+    containsHebrew(str:string):boolean {
+        const hebrewRegex = /[\u0590-\u05FF]/;
+        return hebrewRegex.test(str);
+    }
+
+    private font(pixels:number,text:string,style:FontStyle = FontStyle.regular) : string {
+        const isHebrew = this.containsHebrew(text)
         // I don't know how to do font style at this stage, nor do I feel like exploring it
-        return `${pixels}px Handjet`
+        return `${pixels}px ${isHebrew ? this.hebFamily : this.fontFamily}`
     }
 
     async save(){

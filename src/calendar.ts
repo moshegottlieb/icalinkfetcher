@@ -103,8 +103,39 @@ class Calendar {
 
     static shared = Array<Calendar>()
 
+
+    private findRecurring(vevent:any){
+        if (!vevent.isRecurring()) return vevent
+        let recur = vevent.getFirstPropertyValue("rrule");
+        // When creating the iterator, you must use the DTSTART of the event, it is used for the basis of some calculations
+        let dtstart = vevent.getFirstPropertyValue("dtstart");
+        let iterator = recur.iterator(dtstart); 
+
+        let rangeStart = ICAL.Time.fromJSDate(Calendar.bod)
+        let rangeEnd = ICAL.Time.fromJSDate(Calendar.eod)
+        // Iterate through the start dates in the range.
+        let next = iterator.next()
+        for (let next = iterator.next(); next && next.compare(rangeEnd) < 0; next = iterator.next()) {
+            if (next.compare(rangeStart) < 0) {
+                continue;
+            }
+            // Do something with the date
+            log.debug('here')
+        }
+
+        // Now grab some RDATEs (additional occurrences) and EXDATEs (removed occurrences)
+        let rdates = vevent.getAllProperties("rdate").reduce((acc:any, prop:any) => acc.concat(prop.getValues()));
+        let exdates = vevent.getAllProperties("rdate").reduce((acc:any, prop:any) => acc.concat(prop.getValues()));
+        // Do somthing with the dates
+    }
+
     // event:ICal.Event doesn't work, dunno why
     protected filter(event:any) : boolean {
+        /*
+        if (event.isRecurring()){
+            event = this.findRecurring(event)
+        }*/
+
         const end_date = event.endDate.toJSDate()
         const start_date = event.startDate.toJSDate()
         const start = start_date.getTime()
@@ -156,7 +187,6 @@ class iCalCalendar extends Calendar {
         Event.addEvents(events);
     }
 
-
 }
 
 class CalDavCalendar extends iCalCalendar {
@@ -196,9 +226,6 @@ class CalDavCalendar extends iCalCalendar {
                 this.parse(rawData)
             }
         }
-        Event.shared.forEach( (event)=>{
-            log.debug(`${event.start}-${event.end} - event.summary`)
-        })
     }
     private client:DAVClient
 }
