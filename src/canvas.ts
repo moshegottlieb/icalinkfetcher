@@ -169,7 +169,7 @@ class Canvas {
     }
 
     private async drawLine(event:Event){
-        const fontSize = 22
+        const fontSize = 26
         this.offset += VSpace
         this.context.font = this.font(fontSize)
         let body:string
