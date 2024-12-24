@@ -7,6 +7,11 @@ const logoW = 55
 
 
 export class Agenda extends Canvas {
+
+    constructor(){
+        super()
+    }
+
     private async title(): Promise<string> {
         const weather = await this.weather()
         const now = new Date()
@@ -17,7 +22,7 @@ export class Agenda extends Canvas {
     private async drawTitle() {
         const image = await this.loadImage('images/sense_logo.png')
         const title = await this.title()
-        this.context.font = this.font(40, title)
+        this.context.font = this.autoFont(40, title)
         let metrics = this.context.measureText(title)
         this.offset += Canvas.HSpace
         let lh = this.lineHeight(metrics)
@@ -47,7 +52,7 @@ export class Agenda extends Canvas {
         let metrics: TextMetrics
         // don't even try if we don't have 20px to spare, and break if font size is too small
         while (remaining > 17 && fontSize > 17) {
-            this.context.font = this.font(fontSize, end)
+            this.context.font = this.autoFont(fontSize, end)
             metrics = this.context.measureText(end)
             const lh = this.lineHeight(metrics)
             if (lh <= remaining) {
@@ -89,7 +94,7 @@ export class Agenda extends Canvas {
             body = `${event.localizedStart} ${event.summary}`
         }
         const max_width = Canvas.WIDTH - 2 * Canvas.HSpace
-        this.context.font = this.font(fontSize, body)
+        this.context.font = this.autoFont(fontSize, body)
         body = await this.dotifyIfNeeded(body, suffix, max_width)
         let metrics = this.context.measureText(body + suffix)
         let box = this.lineHeight(metrics)
@@ -106,7 +111,7 @@ export class Agenda extends Canvas {
             body += event.location
         }
         if (body.length) {
-            this.context.font = this.font(fontSize, body)
+            this.context.font = this.autoFont(fontSize, body)
             body = await this.dotifyIfNeeded(body, suffix, max_width)
             metrics = this.context.measureText(body + suffix)
             box = this.lineHeight(metrics)
@@ -138,6 +143,22 @@ export class Agenda extends Canvas {
         }
         await this.drawEnd()
     }
+
+    private autoFont(pixels: number, text: string): string {
+            let font_family: string
+            let px: number
+            const heb = this.containsHebrew(text)
+            if (heb) {
+                font_family = this.Handjet
+                px = pixels - 2 // it's a bit bigger
+            } else {
+                font_family = this.Geneva
+                px = pixels + 2
+            }
+            // I don't know how to do font style at this stage, nor do I feel like exploring it
+            return `${px}px ${font_family}`
+        }
+    
 
     private offset = 0
 }

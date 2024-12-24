@@ -59,14 +59,17 @@ class Canvas {
     static HSpace = 10
 
 
-    protected fontFamily = 'Geneva'
-    protected hebFamily = 'Handjet'
-    protected blackFamily = 'ArchivoBlack'
+    protected Black = 'ArchivoBlack'
+    protected Geneva = 'Geneva'
+    protected Handjet = 'Handjet'
+
 
     constructor() {
-        registerFont('fonts/geneva_9.ttf', { family: this.fontFamily })
-        registerFont('fonts/Handjet/static/Handjet-Regular.ttf', { family: this.hebFamily })
-        registerFont('fonts/Archivo_Black/ArchivoBlack-Regular.ttf', { family: this.blackFamily })
+
+        registerFont('fonts/geneva_9.ttf', { family: this.Geneva })
+        registerFont('fonts/Handjet/static/Handjet-Regular.ttf', { family: this.Handjet })
+        registerFont('fonts/Archivo_Black/ArchivoBlack-Regular.ttf', { family: this.Black })
+
         this.canvas = createCanvas(Canvas.WIDTH, Canvas.HEIGHT)
         this.context = this.canvas.getContext('2d')
         this.context.imageSmoothingEnabled = false
@@ -120,30 +123,13 @@ class Canvas {
         return hebrewRegex.test(str);
     }
 
-    protected font(pixels: number, text: string, family?: string): string {
-        let font_family: string
-        let px: number
-        if (family === undefined) {
-            const heb = this.containsHebrew(text)
-            if (heb) {
-                font_family = this.hebFamily
-                px = pixels - 2 // it's a bit bigger
-            } else {
-                font_family = this.fontFamily
-                px = pixels + 2
-            }
-        } else {
-            px = pixels
-            font_family = family
-        }
-
-        // I don't know how to do font style at this stage, nor do I feel like exploring it
-        return `${px}px ${font_family}`
-    }
-
     async save() {
         const buf = this.canvas.toBuffer()
         await writeFile('output.png', buf)
+    }
+
+    protected font(pixels: number, family: string): string {
+        return `${pixels}px ${family}`
     }
 
     private formatTime(seconds: number): string {
@@ -163,7 +149,6 @@ class Canvas {
     private dotsWidth?: number = null
     protected context: Context2D
     private canvas: any
-
 }
 
 export { Canvas }
