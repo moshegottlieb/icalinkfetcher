@@ -35,4 +35,8 @@ export class Today extends Canvas {
         lineHeight = this.lineHeight(metrics)
         this.context.fillText(month,(Canvas.WIDTH - metrics.width) / 2,Canvas.HEIGHT - Canvas.VSpace)
     }
+
+    font(pixels:number,font:string) : string {
+        return `900 ${pixels}px Helvetica`
+    }
 }
