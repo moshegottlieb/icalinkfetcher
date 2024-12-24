@@ -14,16 +14,16 @@ export interface TextMetrics {
 
 }
 
-enum FontStyle {
-    black = 'black',
-    'extra-bold' = 'extra-bold',
-    bold = 'bold',
-    'semi-bold' = 'semi-bold',
-    medium = 'medium',
-    regular = 'regular',
-    light = 'light',
-    'extra-light' = 'extra-light',
-    thin = 'thin'
+export enum FontStyle {
+    black = '900',
+    'extra-bold' = '800',
+    bold = '700',
+    'semi-bold' = '600',
+    medium = '500',
+    regular = '400',
+    light = '300',
+    'extra-light' = '200',
+    thin = '100'
 }
 
 export interface Context2D {
@@ -62,6 +62,7 @@ class Canvas {
     protected Black = 'ArchivoBlack'
     protected Geneva = 'Geneva'
     protected Handjet = 'Handjet'
+    protected Helvetica = 'Helvetica'
 
 
     constructor() {
@@ -128,8 +129,12 @@ class Canvas {
         await writeFile('output.png', buf)
     }
 
-    protected font(pixels: number, family: string): string {
-        return `${pixels}px ${family}`
+    protected font(pixels: number, family: string,style?:FontStyle): string {
+        let style_text = ''
+        if (style !== undefined){
+            style_text = `${style} `
+        }
+        return `${style_text}${pixels}px ${family}`
     }
 
     private formatTime(seconds: number): string {
