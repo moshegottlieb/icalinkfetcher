@@ -3,26 +3,37 @@ import { configLog } from './log'
 
 
 export interface WeatherConfig {
-    latitude:number
-    longitude:number
-    'time-zone' : string
+    latitude: number
+    longitude: number
+    'time-zone': string
 }
+
+export enum CalendarType {
+    agenda = 'agenda',
+    today = 'today'
+}
+
+
 
 export class Config {
 
-    url : URL
-    username? : string
-    password? : string
-    type: Config.Type
-    weather? : WeatherConfig
 
-    static async load(){
+    weather?: WeatherConfig = null
+    calendars: Array<CalendarConfig> = []
+    type: CalendarType = CalendarType.agenda
 
-        const data = await readFile('config.json','utf-8')
+    static get shared(): Config {
+        return _shared
+    }
+
+
+    static async load() {
+
+        const data = await readFile('config.json', 'utf-8')
         const config = JSON.parse(data)
         configLog(config['log-level'])
         const calendars = config.calendars
-        if (!Array.isArray(calendars)){
+        if (!Array.isArray(calendars)) {
             throw new Error('Config file is expected to include an array')
         }
         const array = calendars as Array<any>
@@ -35,41 +46,58 @@ export class Config {
         if (typeof obj.longitude === 'number' &&
             typeof obj.latitude === 'number' &&
             typeof obj['time-zone'] === 'string') {
-            this.shared.weather = {
-                latitude:obj.latitude,
-                longitude:obj.longitude,
-                'time-zone' : obj['time-zone']
+            _shared.weather = {
+                latitude: obj.latitude,
+                longitude: obj.longitude,
+                'time-zone': obj['time-zone']
             }
         }
-        
-        calendars.forEach((obj) =>{
-            let cfg = new Config()
-            if (!(typeof obj.url === 'string')){
+
+        let type = config['calendar-type'];
+        switch (type) {
+            case 'today':
+                _shared.type = CalendarType.today
+                break
+
+        }
+
+        calendars.forEach((obj) => {
+            let cfg = new CalendarConfig()
+            if (!(typeof obj.url === 'string')) {
                 throw new Error('Each config entry should have a URL')
             }
             cfg.url = new URL(obj.url)
-            if (typeof obj.username === 'string' && typeof obj.password === 'string'){
+            if (typeof obj.username === 'string' && typeof obj.password === 'string') {
                 cfg.username = obj.username
                 cfg.password = obj.password
-                cfg.type = Config.Type.CalDav
+                cfg.type = CalendarConfig.Type.CalDav
             } else {
-                cfg.type = Config.Type.iCal
+                cfg.type = CalendarConfig.Type.iCal
             }
-            this.shared.calendars.push(cfg)
+            _shared.calendars.push(cfg)
         })
+
+
     }
 
-    static shared : {
-        weather? : WeatherConfig
-        calendars : Array<Config>
-    } = {
-        weather:null,
-        calendars:Array()
-    }
 
 }
 
-export namespace Config {
+let _shared = new Config()
+
+export class CalendarConfig {
+
+    url: URL
+    username?: string
+    password?: string
+    type: CalendarConfig.Type
+    weather?: WeatherConfig
+
+    calendarType: CalendarType
+
+}
+
+export namespace CalendarConfig {
     export enum Type {
         CalDav,
         iCal

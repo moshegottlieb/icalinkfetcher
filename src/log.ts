@@ -3,29 +3,29 @@ const _log: Logger<ILogObj> = new Logger()
 
 
 class Log {
-    fatal(message:any){
+    fatal(message: any) {
         _log.fatal(message)
     }
-    error(message:any){
+    error(message: any) {
         _log.error(message)
     }
-    warning(message:any){
+    warning(message: any) {
         _log.warn(message)
     }
-    info(message:any){
+    info(message: any) {
         _log.info(message)
     }
-    debug(message:any){
+    debug(message: any) {
         _log.debug(message)
     }
-    trace(message:any){
+    trace(message: any) {
         _log.trace(message)
     }
 
 }
 
-function configLog(option:any){
-    if (typeof option === 'string'){
+function configLog(option: any) {
+    if (typeof option === 'string') {
         switch (option) {
             case 'trace':
                 _log.settings.minLevel = 0
@@ -50,4 +50,4 @@ function configLog(option:any){
 
 const log = new Log()
 
-export { log , configLog }
+export { log, configLog }
