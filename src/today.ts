@@ -1,4 +1,6 @@
 import { Canvas,FontStyle } from "./canvas";
+import { Weather } from "./weather";
+import { log } from './log';
 
 export class Today extends Canvas {
 
@@ -9,6 +11,44 @@ export class Today extends Canvas {
     }
 
     async draw(){
+        const weather = new Weather()
+        let degrees = null
+        try {
+            await weather.load()
+            degrees = weather.degrees
+        } catch (e){
+            log.error(`Error loading weather data:  ${e}`)
+        }
+        let min_height = 0
+        if (degrees !== null) {
+            degrees = Math.round(degrees)
+            const font = this.font(60,this.Helvetica,FontStyle.black)
+            this.context.font = font
+            let text = `${degrees}°`
+            const metrics = this.context.measureText(text)
+            const width = metrics.width
+            let text_x = (Canvas.WIDTH - width) / 2
+            if (weather.icon) {
+                try {
+                    const icon = await this.loadImage(`images/n_${weather.icon}.png`)
+                    if (icon != null){
+                        //this.context.fillStyle = 'black'
+                        //this.context.fillRect(0,0,Canvas.WIDTH,Canvas.HEIGHT)
+                        //this.context.fillStyle = 'white'
+                        text_x -= (icon.width + 8) / 2
+                        min_height = icon.height
+                        this.context.drawImage(icon, text_x + width + 8, 0)
+                    }
+                } catch (e){
+                    log.error(`Error loading icon:  ${e}`)
+                }
+            }
+            let text_y = this.lineHeight(metrics)
+            if (min_height){
+                text_y += Math.abs(min_height - this.lineHeight(metrics)) / 2
+            }
+            this.context.fillText(text,text_x,text_y)
+        }
         let date_y = 0
         const now = new Date()
         const day = now.getDate()
