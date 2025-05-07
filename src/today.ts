@@ -22,7 +22,7 @@ export class Today extends Canvas {
         let min_height = 0
         if (degrees !== null) {
             degrees = Math.round(degrees)
-            const font = this.font(60,this.Helvetica,FontStyle.black)
+            const font = this.font(120,this.Helvetica,FontStyle.black)
             this.context.font = font
             let text = `${degrees}°`
             const metrics = this.context.measureText(text)
@@ -69,7 +69,7 @@ export class Today extends Canvas {
         this.context.fillText(dow,(Canvas.WIDTH - metrics.width) / 2,dow_y + date_y + offset)
         this.context.font = date_font
         this.context.fillText(date_str,(Canvas.WIDTH - date_width) / 2,date_y + offset)
-        this.context.font = this.font(60,this.Helvetica,FontStyle.black)
+        this.context.font = this.font(90,this.Helvetica,FontStyle.black)
         const month = now.toLocaleString('en-US', {  month: 'long' }).toUpperCase()
         metrics = this.context.measureText(month)
         lineHeight = this.lineHeight(metrics)
