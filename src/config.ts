@@ -43,7 +43,10 @@ export class Config {
 
         const obj = config.weather
 
-        if (typeof obj.longitude === 'number' &&
+        if (obj &&
+            typeof obj === 'object' &&
+            !Array.isArray(obj) &&
+            typeof obj.longitude === 'number' &&
             typeof obj.latitude === 'number' &&
             typeof obj['time-zone'] === 'string') {
             _shared.weather = {
