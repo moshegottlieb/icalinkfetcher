@@ -22,6 +22,7 @@ export class Config {
     calendars: Array<CalendarConfig> = []
     type: CalendarType = CalendarType.agenda
     flipped : boolean = false
+    locale?: string = null
 
     static get shared(): Config {
         return _shared
@@ -63,6 +64,11 @@ export class Config {
                 _shared.type = CalendarType.today
                 break
 
+        }
+
+        let locale = config['locale'];
+        if (typeof locale === 'string') {
+            _shared.locale = locale
         }
 
         let flipped = config['flipped'];
