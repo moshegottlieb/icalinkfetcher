@@ -9,11 +9,6 @@ async function main() {
     await Config.load()
     log.trace('Loaded configuration')
 
-    if (Config.shared.locale) {
-        log.info(`Setting locale to ${Config.shared.locale}`)
-        process.env.LC_ALL = Config.shared.locale   
-    }
-
     let canvas: Canvas
 
     if (Config.shared.type == CalendarType.agenda) {
