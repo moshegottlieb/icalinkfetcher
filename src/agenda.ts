@@ -23,7 +23,7 @@ export class Agenda extends Canvas {
     private async drawTitle() {
         const image = await this.loadImage('images/sense_logo.png')
         const title = await this.title()
-        this.context.font = this.autoFont(40, title)
+        this.context.font = this.autoFont(70, title)
         let metrics = this.context.measureText(title)
         this.offset += Canvas.HSpace
         let lh = this.lineHeight(metrics)
@@ -47,7 +47,7 @@ export class Agenda extends Canvas {
 
     private async drawEnd() {
         this.offset += Canvas.VSpace
-        let fontSize = 30
+        let fontSize = 50
         const remaining = Canvas.HEIGHT - this.offset
         const end = "No more events today"
         let metrics: TextMetrics
@@ -82,29 +82,34 @@ export class Agenda extends Canvas {
     }
 
     private async drawLine(event: Event) {
-        const fontSize = 26
+        const fontSize = 35
         this.offset += Canvas.VSpace
 
-        let body: string
-        let suffix = ''
+        let body: string = event.summary
+        let prefix:string
         if (event.isFullDay) {
-            body = `${event.summary}`
-            suffix = ' (all day)'
+            prefix = 'All day '
         }
         else {
-            body = `${event.localizedStart} ${event.summary}`
+            prefix = event.localizedStart + ' '
         }
         const max_width = Canvas.WIDTH - 2 * Canvas.HSpace
-        this.context.font = this.autoFont(fontSize, body)
-        body = await this.dotifyIfNeeded(body, suffix, max_width)
-        let metrics = this.context.measureText(body + suffix)
+        this.context.font = this.autoFont(fontSize, prefix)
+        let metrics = this.context.measureText(prefix)
         let box = this.lineHeight(metrics)
         this.offset += Canvas.VSpace
-        this.context.fillText(body + suffix, Canvas.HSpace, this.offset)
+        this.context.fillText(prefix, Canvas.HSpace, this.offset)
+        let hoffset = metrics.width + Canvas.HSpace
+        this.context.font = this.autoFont(fontSize, body)
+        body = await this.dotifyIfNeeded(body, '', max_width - hoffset)
+        metrics = this.context.measureText(body)
+        box = Math.max(this.lineHeight(metrics),box)
+        //this.offset += Canvas.VSpace
+        this.context.fillText(body, hoffset, this.offset)
         this.offset += box + Canvas.VSpace
         // Add a line if we have a location or event is longer than 5 minutes, but disregard duration of full day events
         body = ''
-        suffix = ''
+        prefix = ''
         if (!event.isFullDay && event.duration > 5 * 60) {
             body = event.localizedEnd + ' '
         }
@@ -113,10 +118,10 @@ export class Agenda extends Canvas {
         }
         if (body.length) {
             this.context.font = this.autoFont(fontSize, body)
-            body = await this.dotifyIfNeeded(body, suffix, max_width)
-            metrics = this.context.measureText(body + suffix)
+            body = await this.dotifyIfNeeded(body, prefix, max_width)
+            metrics = this.context.measureText(prefix + body)
             box = this.lineHeight(metrics)
-            this.context.fillText(body + suffix, Canvas.HSpace, this.offset)
+            this.context.fillText(prefix + body, Canvas.HSpace, this.offset)
             this.offset += box
         }
         this.context.beginPath()
