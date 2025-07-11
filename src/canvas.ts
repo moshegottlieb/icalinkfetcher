@@ -98,9 +98,8 @@ class Canvas {
             this.dotsWidth = metrics.width
         }
         let metrics = this.context.measureText(line + suffix)
-        const max_width = Canvas.WIDTH - 2 * Canvas.HSpace
-        if (metrics.width > max_width) {
-            while (metrics.width > (max_width - this.dotsWidth)) {
+        if (metrics.width > maxWidth) {
+            while (metrics.width > (maxWidth - this.dotsWidth)) {
                 line = line.substring(0, line.length - 1)
                 metrics = this.context.measureText(line + suffix)
             }
@@ -108,6 +107,7 @@ class Canvas {
         }
         return line
     }
+
 
     async weather(): Promise<Weather> {
         const weather = new Weather()
