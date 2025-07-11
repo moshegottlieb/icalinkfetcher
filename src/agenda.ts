@@ -1,6 +1,7 @@
 
 import { Canvas, TextMetrics, Context2D } from './canvas'
 import { Event } from './calendar'
+import { Config } from './config'
 
 const logoH = 55
 const logoW = 55
@@ -16,7 +17,7 @@ export class Agenda extends Canvas {
         const weather = await this.weather()
         const now = new Date()
         const degrees = weather.degrees === null ? '' : `, ${Math.round(weather.degrees)}°C`
-        return `${now.toLocaleDateString([], { dateStyle: 'long' })} ${degrees}`
+        return `${now.toLocaleDateString(Config.shared.locale, { dateStyle: 'long' })} ${degrees}`
     }
 
     private async drawTitle() {
@@ -149,8 +150,9 @@ export class Agenda extends Canvas {
             let px: number
             const heb = this.containsHebrew(text)
             if (heb) {
-                font_family = this.Handjet
-                px = pixels - 2 // it's a bit bigger
+                //font_family = this.Handjet
+                font_family = this.Helvetica
+                px = Math.max(pixels - 8,8) // it's a bit bigger
             } else {
                 font_family = this.Geneva
                 px = pixels + 2

@@ -31,7 +31,7 @@ class Event {
     }
 
     private localizedTime(date: Date): string {
-        return date.toLocaleTimeString([], { timeStyle: 'short' })
+        return date.toLocaleTimeString(Config.shared.locale, { timeStyle: 'short' })
     }
 
     /**
