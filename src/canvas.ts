@@ -1,6 +1,7 @@
 import { writeFile } from 'node:fs/promises'
 const { createCanvas, loadImage, registerFont } = require('canvas')
 import { Weather } from './weather'
+import { Config } from './config'
 
 export interface TextMetrics {
     width: number
@@ -46,6 +47,9 @@ export interface Context2D {
 
     setLineDash(pattern: Array<number>): void
 
+    rotate(angle: number): void
+    translate(x: number, y: number): void
+
     imageSmoothingEnabled: boolean
     antialias: string
 }
@@ -79,6 +83,11 @@ class Canvas {
         this.context.fillRect(0, 0, Canvas.WIDTH, Canvas.HEIGHT)
         this.context.fillStyle = 'black'
         this.context.strokeStyle = 'black'
+        if (Config.shared.flipped){
+            // flip the canvas vertically
+            this.context.translate(Canvas.WIDTH, Canvas.HEIGHT)
+            this.context.rotate(Math.PI)
+        }
     }
 
     protected async dotifyIfNeeded(line: string, suffix: string, maxWidth: number): Promise<string> {

@@ -21,6 +21,7 @@ export class Config {
     weather?: WeatherConfig = null
     calendars: Array<CalendarConfig> = []
     type: CalendarType = CalendarType.agenda
+    flipped : boolean = false
 
     static get shared(): Config {
         return _shared
@@ -62,6 +63,13 @@ export class Config {
                 _shared.type = CalendarType.today
                 break
 
+        }
+
+        let flipped = config['flipped'];
+        if (typeof flipped === 'boolean') {
+            _shared.flipped = flipped
+        } else {
+            _shared.flipped = false
         }
 
         calendars.forEach((obj) => {

@@ -5,6 +5,8 @@
         "longitude" : 13.411440,
         "time-zone" : "Europe/Berlin"
     },
+    "flipped" : true,
+    "calendar-type-example" : "today",
     "calendar-type" : "agenda",
     "calendars" : [
         {
