@@ -70,9 +70,15 @@ export class Today extends Canvas {
         this.context.fillText(dow,(Canvas.WIDTH - metrics.width) / 2,dow_y + date_y + offset)
         this.context.font = date_font
         this.context.fillText(date_str,(Canvas.WIDTH - date_width) / 2,date_y + offset)
-        this.context.font = this.font(90,this.Helvetica,FontStyle.black)
+        let month_font_size = 90
+        this.context.font = this.font(month_font_size,this.Helvetica,FontStyle.black)
         const month = now.toLocaleString(Config.shared.locale, {  month: 'long' }).toUpperCase()
         metrics = this.context.measureText(month)
+        while (metrics.width > Canvas.WIDTH - 20){
+            month_font_size -= 5
+            this.context.font = this.font(month_font_size,this.Helvetica,FontStyle.black)
+            metrics = this.context.measureText(month)
+        }
         lineHeight = this.lineHeight(metrics)
         this.context.fillText(month,(Canvas.WIDTH - metrics.width) / 2,Canvas.HEIGHT - Canvas.VSpace)
     }
